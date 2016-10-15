@@ -21,7 +21,7 @@ def xml2str(xml):
     elif xml.tag == "gen":
         return ITALIC + contents + RESET + tail
     elif xml.tag == "sense":
-        return '\n' + int(xml.get("level"))*'  ' + BOLD + xml.get('n') + '. ' + RESET + contents.strip('— ') + tail
+        return '\n' + int(xml.get("level"))*'  ' + BOLD + xml.get('n') + ('. ' if xml.get('n')[-1] != ')' else ' ') + RESET + contents.strip('— ') + tail
     elif xml.tag == "hi" and xml.get("rend") == "ital":
         return ITALIC + contents + RESET + tail
     elif xml.tag == "foreign" and xml.get("lang") == "greek":
