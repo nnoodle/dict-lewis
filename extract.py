@@ -23,13 +23,10 @@ def xml2str(xml):
     else:
         return contents + tail
 
-# tags={i.tag for i in root.iter()}
-# d={i.get("key"): ''.join(i.itertext()) for i in root.iterfind("//entryFree")}
 
 dictionary = {}
 for entry in root.iterfind("//entryFree"):
     key = entry.get("key").lower().strip("0123456789")
-    #value = ''.join(entry.itertext())
 
     assert entry.text is None # May as well assert instead of just assuming this
     value = ''.join(map(xml2str, entry)) + (entry.tail or '')
