@@ -1,12 +1,16 @@
 import lxml.etree
 import json
 
+import beta_to_unicode
+
 RESET = "\033[0m"
 BOLD = "\033[1m"
 ITALIC = "\033[3m"
 
 parser = lxml.etree.XMLParser(no_network=False)
 root = lxml.etree.parse("lat.ls.perseus-eng1.xml", parser=parser)
+
+betacode_replacer = beta_to_unicode.Replacer()
 
 def xml2str(xml):
     contents = (xml.text or '') + ''.join(map(xml2str, xml))
@@ -17,9 +21,11 @@ def xml2str(xml):
     elif xml.tag == "gen":
         return ITALIC + contents + RESET + tail
     elif xml.tag == "sense":
-        return '\n' + int(xml.get("level"))*'  ' + BOLD + xml.get('n') + '.' + RESET + contents + tail
+        return '\n' + int(xml.get("level"))*'  ' + BOLD + xml.get('n') + '. ' + RESET + contents.strip('— ') + tail
     elif xml.tag == "hi" and xml.get("rend") == "ital":
         return ITALIC + contents + RESET + tail
+    elif xml.tag == "foreign" and xml.get("lang") == "greek":
+        return betacode_replacer.beta_code(contents.upper()) + tail
     else:
         return contents + tail
 
