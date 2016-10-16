@@ -26,6 +26,8 @@ def xml2str(xml):
         return ITALIC + contents + RESET + tail
     elif xml.tag == "foreign" and xml.get("lang") == "greek":
         return betacode_replacer.beta_code(contents.upper()) + tail
+    elif xml.tag == "quote":
+        return '“' + contents + "”" + tail
     else:
         return contents + tail
 
