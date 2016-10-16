@@ -12,8 +12,10 @@ root = lxml.etree.parse("lat.ls.perseus-eng1.xml", parser=parser)
 
 betacode_replacer = beta_to_unicode.Replacer()
 
-def xml2str(xml):
-    contents = (xml.text or '') + ''.join(map(xml2str, xml))
+def xml2str(xml, level=0):
+    if xml.tag == "sense":
+        level = int(xml.get("level"))
+    contents = (xml.text or '') + ''.join(xml2str(i, level) for i in xml)
     contents = contents.replace(" ...", "…")
     tail = (xml.tail or '').replace(" ...", "…")
 
@@ -22,11 +24,13 @@ def xml2str(xml):
     elif xml.tag == "gen":
         return ITALIC + contents + RESET + tail
     elif xml.tag == "sense":
-        return '\n' + int(xml.get("level"))*'  ' + BOLD + xml.get('n') + ('. ' if xml.get('n')[-1] != ')' else ' ') + RESET + contents.strip('— ') + tail
+        return '\n' + level*'  ' + BOLD + xml.get('n') + ('. ' if xml.get('n')[-1] != ')' else ' ') + RESET + contents.strip('— ') + tail
     elif xml.tag == "hi" and xml.get("rend") == "ital":
         return ITALIC + contents + RESET + tail
     elif xml.tag == "foreign" and xml.get("lang") == "greek":
         return betacode_replacer.beta_code(contents.upper()) + tail
+    elif xml.tag == "cit":
+        return "\n" + (level+1) * '  ' + contents + tail.strip(": ")
     elif xml.tag == "quote":
         return '“' + contents + "”" + tail
     else:
