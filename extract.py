@@ -14,7 +14,8 @@ betacode_replacer = beta_to_unicode.Replacer()
 
 def xml2str(xml):
     contents = (xml.text or '') + ''.join(map(xml2str, xml))
-    tail = xml.tail or ''
+    contents = contents.replace(" ...", "…")
+    tail = (xml.tail or '').replace(" ...", "…")
 
     if xml.tag == "orth":
         return BOLD + contents + RESET + tail
