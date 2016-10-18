@@ -16,8 +16,7 @@ def xml2str(xml, level=0):
     if xml.tag == "sense":
         level = int(xml.get("level"))
     contents = (xml.text or '') + ''.join(xml2str(i, level) for i in xml)
-    contents = contents.replace(" ...", "…")
-    tail = (xml.tail or '').replace(" ...", "…")
+    tail = xml.tail or ''
 
     if xml.tag == "orth":
         return BOLD + contents + RESET + tail
@@ -43,6 +42,7 @@ for entry in root.iterfind("//entryFree"):
 
     assert entry.text is None # May as well assert instead of just assuming this
     value = ''.join(map(xml2str, entry)) + (entry.tail or '')
+    value = value.replace(" ...", "…")
 
     if key in dictionary:
         dictionary[key].append(value)
