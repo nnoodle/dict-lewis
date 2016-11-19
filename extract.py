@@ -39,6 +39,7 @@ def xml2str(xml, level=0):
 dictionary = {}
 for entry in root.iterfind("//entryFree"):
     key = entry.get("key").lower().strip("0123456789")
+    key = key.replace('j', 'i').replace('v', 'u')
 
     assert entry.text is None # May as well assert instead of just assuming this
     value = ''.join(map(xml2str, entry)) + (entry.tail or '')
