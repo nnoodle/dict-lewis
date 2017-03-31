@@ -1,10 +1,12 @@
-import json
 import sys
-
-with open("lewis.json") as dicfile:
-    dictionary = json.load(dicfile)
+import sqlite3
 
 key = sys.argv[1].lower()
 key = key.replace('j', 'i').replace('v', 'u')
-definitions = dictionary[key]
-print(*definitions, end='')
+
+conn = sqlite3.connect("lewis.db")
+c = conn.cursor()
+c.execute('SELECT * FROM dictionary WHERE word=?', (key,))
+for i in c:
+    print(i[1], end='')
+conn.close()

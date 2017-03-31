@@ -1,5 +1,7 @@
 import lxml.etree
 import json
+import os
+import sqlite3
 
 import beta_to_unicode
 
@@ -36,6 +38,20 @@ def xml2str(xml, level=0):
         return contents + tail
 
 
+def create_db(dictionary):
+    if os.path.exists("lewis.db"):
+        os.remove("lewis.db")
+
+    entries = [(word, desc) for word, v in dictionary.items() for desc in v]
+
+    conn = sqlite3.connect("lewis.db")
+    c = conn.cursor()
+    c.execute("CREATE TABLE dictionary (word text, description text)")
+    c.executemany("INSERT INTO dictionary (word, description) VALUES (?, ?)", entries)
+    conn.commit()
+    conn.close()
+
+
 dictionary = {}
 for entry in root.iterfind("//entryFree"):
     key = entry.get("key").lower().strip("0123456789")
@@ -50,5 +66,4 @@ for entry in root.iterfind("//entryFree"):
     else:
         dictionary[key] = [value]
 
-with open("lewis.json", 'w') as dicfile:
-    json.dump(dictionary, dicfile)
+create_db(dictionary)
