@@ -3,13 +3,26 @@
 import lxml.etree
 import json
 import os
+import sys
 import sqlite3
 
 import beta_to_unicode
 
-RESET = "\033[0m"
-BOLD = "\033[1m"
-ITALIC = "\033[3m"
+if len(sys.argv) > 1 and sys.argv[1] == "--android":
+    DBNAME = "lewis-android.db"
+
+    BOLD = '<b>'
+    ITALIC = '<i>'
+    UNBOLD = "</b>"
+    UNITALIC = "</i>"
+    NL = "<br/>"
+else:
+    DBNAME = "lewis.db"
+
+    BOLD = "\033[1m"
+    ITALIC = "\033[3m"
+    UNBOLD = UNITALIC = "\033[0m"
+    NL = '\n'
 
 parser = lxml.etree.XMLParser(no_network=False)
 root = lxml.etree.parse("lat.ls.perseus-eng1.xml", parser=parser)
@@ -23,17 +36,17 @@ def xml2str(xml, level=0):
     tail = xml.tail or ''
 
     if xml.tag == "orth":
-        return BOLD + contents + RESET + tail
+        return BOLD + contents + UNBOLD + tail
     elif xml.tag == "gen":
-        return ITALIC + contents + RESET + tail
+        return ITALIC + contents + UNITALIC + tail
     elif xml.tag == "sense":
-        return '\n' + level*'  ' + BOLD + xml.get('n') + ('. ' if xml.get('n')[-1] != ')' else ' ') + RESET + contents.strip('— ') + tail
+        return NL + level*'  ' + BOLD + xml.get('n') + ('. ' if xml.get('n')[-1] != ')' else ' ') + UNBOLD + contents.strip('— ') + tail
     elif xml.tag == "hi" and xml.get("rend") == "ital":
-        return ITALIC + contents + RESET + tail
+        return ITALIC + contents + UNITALIC + tail
     elif xml.tag == "foreign" and xml.get("lang") == "greek":
         return betacode_replacer.beta_code(contents.upper()) + tail
     elif xml.tag == "cit":
-        return "\n" + (level+1) * '  ' + contents + tail.strip(": ")
+        return NL + (level+1) * '  ' + contents + tail.strip(": ")
     elif xml.tag == "quote":
         return '“' + contents + "”" + tail
     else:
@@ -41,12 +54,12 @@ def xml2str(xml, level=0):
 
 
 def create_db(dictionary):
-    if os.path.exists("lewis.db"):
-        os.remove("lewis.db")
+    if os.path.exists(DBNAME):
+        os.remove(DBNAME)
 
     entries = [(word, desc) for word, v in dictionary.items() for desc in v]
 
-    conn = sqlite3.connect("lewis.db")
+    conn = sqlite3.connect(DBNAME)
     c = conn.cursor()
     c.execute("CREATE TABLE dictionary (word text, description text)")
     c.executemany("INSERT INTO dictionary (word, description) VALUES (?, ?)", entries)
