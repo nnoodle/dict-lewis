@@ -16,6 +16,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "--android":
     UNBOLD = "</b>"
     UNITALIC = "</i>"
     NL = "<br/>"
+    SPACE = '&nbsp;' * 2
 else:
     DBNAME = "lewis.db"
 
@@ -23,6 +24,7 @@ else:
     ITALIC = "\033[3m"
     UNBOLD = UNITALIC = "\033[0m"
     NL = '\n'
+    SPACE = '  '
 
 parser = lxml.etree.XMLParser(no_network=False)
 root = lxml.etree.parse("lat.ls.perseus-eng1.xml", parser=parser)
@@ -40,13 +42,13 @@ def xml2str(xml, level=0):
     elif xml.tag == "gen":
         return ITALIC + contents + UNITALIC + tail
     elif xml.tag == "sense":
-        return NL + level*'  ' + BOLD + xml.get('n') + ('. ' if xml.get('n')[-1] != ')' else ' ') + UNBOLD + contents.strip('— ') + tail
+        return NL + level*SPACE + BOLD + xml.get('n') + ('. ' if xml.get('n')[-1] != ')' else ' ') + UNBOLD + contents.strip('— ') + tail
     elif xml.tag == "hi" and xml.get("rend") == "ital":
         return ITALIC + contents + UNITALIC + tail
     elif xml.tag == "foreign" and xml.get("lang") == "greek":
         return betacode_replacer.beta_code(contents.upper()) + tail
     elif xml.tag == "cit":
-        return NL + (level+1) * '  ' + contents + tail.strip(": ")
+        return NL + (level+1) * SPACE + contents + tail.strip(": ")
     elif xml.tag == "quote":
         return '“' + contents + "”" + tail
     else:
@@ -61,8 +63,8 @@ def create_db(dictionary):
 
     conn = sqlite3.connect(DBNAME)
     c = conn.cursor()
-    c.execute("CREATE TABLE dictionary (word text, description text)")
-    c.executemany("INSERT INTO dictionary (word, description) VALUES (?, ?)", entries)
+    c.execute("CREATE TABLE dictionary (_id text, description text)")
+    c.executemany("INSERT INTO dictionary (_id, description) VALUES (?, ?)", entries)
     conn.commit()
     conn.close()
 
