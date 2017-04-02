@@ -63,8 +63,8 @@ def create_db(dictionary):
 
     conn = sqlite3.connect(DBNAME)
     c = conn.cursor()
-    c.execute("CREATE TABLE dictionary (_id text, description text)")
-    c.executemany("INSERT INTO dictionary (_id, description) VALUES (?, ?)", entries)
+    c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, word TEXT, description TEXT)")
+    c.executemany("INSERT INTO dictionary (word, description) VALUES (?, ?)", entries)
     conn.commit()
     conn.close()
 
