@@ -68,9 +68,12 @@ def create_db(dictionary):
     conn.commit()
     conn.close()
 
+entries = root.findall("//entryFree")
 
 dictionary = {}
-for entry in root.iterfind("//entryFree"):
+for i, entry in enumerate(entries):
+    print(i, "/", len(entries), "\r", sep='', end='')
+
     key = entry.get("key").lower().strip("0123456789")
     key = key.replace('j', 'i').replace('v', 'u')
 
@@ -82,5 +85,7 @@ for entry in root.iterfind("//entryFree"):
         dictionary[key].append(value)
     else:
         dictionary[key] = [value]
+
+print(len(entries), "/", len(entries), sep='')
 
 create_db(dictionary)
