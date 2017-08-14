@@ -59,18 +59,16 @@ def create_db(dictionary):
     if os.path.exists(DBNAME):
         os.remove(DBNAME)
 
-    entries = [(word, desc) for word, v in dictionary.items() for desc in v]
-
     conn = sqlite3.connect(DBNAME)
     c = conn.cursor()
     c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, word TEXT, description TEXT)")
-    c.executemany("INSERT INTO dictionary (word, description) VALUES (?, ?)", entries)
+    c.executemany("INSERT INTO dictionary (word, description) VALUES (?, ?)", dictionary)
     conn.commit()
     conn.close()
 
 entries = root.findall("//entryFree")
 
-dictionary = {}
+dictionary = []
 for i, entry in enumerate(entries):
     print(i, "/", len(entries), "\r", sep='', end='')
 
@@ -81,10 +79,7 @@ for i, entry in enumerate(entries):
     value = ''.join(map(xml2str, entry)) + (entry.tail or '')
     value = value.replace(" ...", "…")
 
-    if key in dictionary:
-        dictionary[key].append(value)
-    else:
-        dictionary[key] = [value]
+    dictionary.append((key, value))
 
 print(len(entries), "/", len(entries), sep='')
 
