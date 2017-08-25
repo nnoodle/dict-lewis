@@ -48,7 +48,9 @@ def xml2str(xml, level=0):
     elif xml.tag == "foreign" and xml.get("lang") == "greek":
         return betacode_replacer.beta_code(contents.upper()) + tail
     elif xml.tag == "cit":
-        return NL + (level+1) * SPACE + contents + tail.strip(": ")
+        if tail.endswith(': '):
+            tail = tail.rstrip(': ')
+        return NL + (level+1) * SPACE + contents + tail
     elif xml.tag == "quote":
         return '“' + contents + "”" + tail
     else:
