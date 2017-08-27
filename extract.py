@@ -8,6 +8,8 @@ import sqlite3
 
 import beta_to_unicode
 
+XML_PATH = "lexica/CTS_XML_TEI/perseus/pdllex/lat/ls/lat.ls.perseus-eng1.xml"
+
 if len(sys.argv) > 1 and sys.argv[1] == "--android":
     DBNAME = "lewis-android.db"
 
@@ -27,7 +29,7 @@ else:
     SPACE = '  '
 
 parser = lxml.etree.XMLParser(no_network=False)
-root = lxml.etree.parse("lat.ls.perseus-eng1.xml", parser=parser)
+root = lxml.etree.parse(XML_PATH, parser=parser)
 
 betacode_replacer = beta_to_unicode.Replacer()
 
