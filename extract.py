@@ -72,6 +72,7 @@ with sqlite3.connect(DBNAME) as conn:
         key = entry.get("key").lower().strip("0123456789")
         key = key.replace('j', 'i').replace('v', 'u')
 
+        assert entry[0].tag == "orth"
         word = entry[0].text.replace('-', '')
 
         assert entry.text is None # May as well assert instead of just assuming this
