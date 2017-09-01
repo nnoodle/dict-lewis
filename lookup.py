@@ -8,7 +8,7 @@ key = key.replace('j', 'i').replace('v', 'u')
 
 conn = sqlite3.connect("lewis.db")
 c = conn.cursor()
-c.execute('SELECT * FROM dictionary WHERE word=?', (key,))
+c.execute('SELECT description FROM dictionary WHERE key=?', (key,))
 for i in c:
-    print(i[2], end='')
+    print(i[0], end='')
 conn.close()

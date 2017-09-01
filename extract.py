@@ -65,8 +65,8 @@ def create_db(dictionary):
 
     conn = sqlite3.connect(DBNAME)
     c = conn.cursor()
-    c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, word TEXT, description TEXT)")
-    c.executemany("INSERT INTO dictionary (word, description) VALUES (?, ?)", dictionary)
+    c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, key TEXT, word TEXT, description TEXT)")
+    c.executemany("INSERT INTO dictionary (key, word, description) VALUES (?, ?, ?)", dictionary)
     conn.commit()
     conn.close()
 
@@ -79,11 +79,13 @@ for i, entry in enumerate(entries):
     key = entry.get("key").lower().strip("0123456789")
     key = key.replace('j', 'i').replace('v', 'u')
 
+    word = entry[0].text.replace('-', '')
+
     assert entry.text is None # May as well assert instead of just assuming this
     value = ''.join(map(xml2str, entry)) + (entry.tail or '')
     value = value.replace(" ...", "…")
 
-    dictionary.append((key, value))
+    dictionary.append((key, word, value))
 
 print(len(entries), "/", len(entries), sep='')
 
