@@ -28,11 +28,6 @@ else:
     NL = '\n'
     SPACE = '  '
 
-print("Parsing " + XML_PATH)
-
-parser = lxml.etree.XMLParser(no_network=False)
-root = lxml.etree.parse(XML_PATH, parser=parser)
-
 betacode_replacer = beta_to_unicode.Replacer()
 
 def xml2str(xml, level=0):
@@ -61,22 +56,18 @@ def xml2str(xml, level=0):
         return contents + tail
 
 
-def create_db(dictionary):
-    if os.path.exists(DBNAME):
-        os.remove(DBNAME)
+if os.path.exists(DBNAME):
+    os.remove(DBNAME)
 
-    conn = sqlite3.connect(DBNAME)
-    c = conn.cursor()
-    c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, key TEXT, word TEXT, description TEXT)")
-    c.executemany("INSERT INTO dictionary (key, word, description) VALUES (?, ?, ?)", dictionary)
-    conn.commit()
-    conn.close()
+conn = sqlite3.connect(DBNAME)
+c = conn.cursor()
+c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, key TEXT, word TEXT, description TEXT)")
 
-entries = root.findall("//entryFree")
+print("Reading from " + XML_PATH)
 
-dictionary = []
-for i, entry in enumerate(entries):
-    print("\rProcessing entry ", i, "/", len(entries), sep='', end='')
+context = lxml.etree.iterparse(XML_PATH, no_network=False, events=("end",), tag="entryFree")
+for i, (_, entry) in enumerate(context):
+    print("\rProcessing entry ", i, sep='', end='')
 
     key = entry.get("key").lower().strip("0123456789")
     key = key.replace('j', 'i').replace('v', 'u')
@@ -88,7 +79,11 @@ for i, entry in enumerate(entries):
     value = value.replace(" ...", "…")
     value = value.replace("^", "") # XXX: Render proper diacritics: https://github.com/PerseusDL/lexica/issues/41
 
-    dictionary.append((key, word, value))
+    c.execute("INSERT INTO dictionary (key, word, description) VALUES (?, ?, ?)", (key, word, value))
+    entry.clear() # Free memory
+print()
 
-print("\nWriting database " + DBNAME)
-create_db(dictionary)
+conn.commit()
+conn.close()
+
+print("Finished generating " + DBNAME)
