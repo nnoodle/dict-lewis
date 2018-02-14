@@ -84,6 +84,7 @@ for i, entry in enumerate(entries):
     assert entry.text is None # May as well assert instead of just assuming this
     value = ''.join(map(xml2str, entry)) + (entry.tail or '')
     value = value.replace(" ...", "…")
+    value = value.replace("^", "") # XXX: Render proper diacritics: https://github.com/PerseusDL/lexica/issues/41
 
     dictionary.append((key, word, value))
 
