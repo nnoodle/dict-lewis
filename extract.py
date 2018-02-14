@@ -28,6 +28,8 @@ else:
     NL = '\n'
     SPACE = '  '
 
+print("Parsing " + XML_PATH)
+
 parser = lxml.etree.XMLParser(no_network=False)
 root = lxml.etree.parse(XML_PATH, parser=parser)
 
@@ -74,7 +76,7 @@ entries = root.findall("//entryFree")
 
 dictionary = []
 for i, entry in enumerate(entries):
-    print(i, "/", len(entries), "\r", sep='', end='')
+    print("\rProcessing entry ", i, "/", len(entries), sep='', end='')
 
     key = entry.get("key").lower().strip("0123456789")
     key = key.replace('j', 'i').replace('v', 'u')
@@ -88,6 +90,5 @@ for i, entry in enumerate(entries):
 
     dictionary.append((key, word, value))
 
-print(len(entries), "/", len(entries), sep='')
-
+print("\nWriting database " + DBNAME)
 create_db(dictionary)
