@@ -78,7 +78,10 @@ with sqlite3.connect(DBNAME) as conn:
         assert entry.text is None # May as well assert instead of just assuming this
         value = ''.join(map(xml2str, entry)) + (entry.tail or '')
         value = value.replace(" ...", "…")
-        value = value.replace("^", "") # XXX: Render proper diacritics: https://github.com/PerseusDL/lexica/issues/41
+
+        # XXX: Render proper diacritics: https://github.com/PerseusDL/lexica/issues/41
+        word = word.replace("^", "")
+        value = value.replace("^", "")
 
         c.execute("INSERT INTO dictionary (key, word, description) VALUES (?, ?, ?)", (key, word, value))
         entry.clear() # Free memory
