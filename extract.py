@@ -59,31 +59,28 @@ def xml2str(xml, level=0):
 if os.path.exists(DBNAME):
     os.remove(DBNAME)
 
-conn = sqlite3.connect(DBNAME)
-c = conn.cursor()
-c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, key TEXT, word TEXT, description TEXT)")
+with sqlite3.connect(DBNAME) as conn:
+    c = conn.cursor()
+    c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, key TEXT, word TEXT, description TEXT)")
 
-print("Reading from " + XML_PATH)
+    print("Reading from " + XML_PATH)
 
-context = lxml.etree.iterparse(XML_PATH, no_network=False, events=("end",), tag="entryFree")
-for i, (_, entry) in enumerate(context):
-    print("\rProcessing entry ", i, sep='', end='')
+    context = lxml.etree.iterparse(XML_PATH, no_network=False, events=("end",), tag="entryFree")
+    for i, (_, entry) in enumerate(context):
+        print("\rProcessing entry ", i, sep='', end='')
 
-    key = entry.get("key").lower().strip("0123456789")
-    key = key.replace('j', 'i').replace('v', 'u')
+        key = entry.get("key").lower().strip("0123456789")
+        key = key.replace('j', 'i').replace('v', 'u')
 
-    word = entry[0].text.replace('-', '')
+        word = entry[0].text.replace('-', '')
 
-    assert entry.text is None # May as well assert instead of just assuming this
-    value = ''.join(map(xml2str, entry)) + (entry.tail or '')
-    value = value.replace(" ...", "…")
-    value = value.replace("^", "") # XXX: Render proper diacritics: https://github.com/PerseusDL/lexica/issues/41
+        assert entry.text is None # May as well assert instead of just assuming this
+        value = ''.join(map(xml2str, entry)) + (entry.tail or '')
+        value = value.replace(" ...", "…")
+        value = value.replace("^", "") # XXX: Render proper diacritics: https://github.com/PerseusDL/lexica/issues/41
 
-    c.execute("INSERT INTO dictionary (key, word, description) VALUES (?, ?, ?)", (key, word, value))
-    entry.clear() # Free memory
-print()
-
-conn.commit()
-conn.close()
+        c.execute("INSERT INTO dictionary (key, word, description) VALUES (?, ?, ?)", (key, word, value))
+        entry.clear() # Free memory
+    print()
 
 print("Finished generating " + DBNAME)
