@@ -87,4 +87,7 @@ with sqlite3.connect(DBNAME) as conn:
         entry.clear() # Free memory
     print()
 
+    print("Creating index")
+    c.execute("CREATE INDEX dictionary_key_idx ON dictionary (key)")
+
 print("Finished generating " + DBNAME)
