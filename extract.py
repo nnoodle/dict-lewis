@@ -9,6 +9,7 @@ import sqlite3
 import beta_to_unicode
 
 XML_PATH = "lexica/CTS_XML_TEI/perseus/pdllex/lat/ls/lat.ls.perseus-eng1.xml"
+LAT_GRK = dict(zip("abgdez", "αβγδεζ"))
 
 if len(sys.argv) > 1 and sys.argv[1] == "--android":
     DBNAME = "lewis-android.db"
@@ -41,7 +42,11 @@ def xml2str(xml, level=0):
     elif xml.tag == "gen":
         return ITALIC + contents + UNITALIC + tail
     elif xml.tag == "sense":
-        return NL + level*SPACE + BOLD + xml.get('n') + ('. ' if xml.get('n')[-1] != ')' else ' ') + UNBOLD + contents.strip('— ') + tail
+        n = xml.get('n')
+        if level == 5:
+            n = ''.join(LAT_GRK[i] if i.isalpha() else i for i in n)
+        n += '. ' if n[-1] != ')' else ' '
+        return NL + level*SPACE + BOLD + n + UNBOLD + contents.strip('— ') + tail
     elif xml.tag == "hi" and xml.get("rend") == "ital":
         return ITALIC + contents + UNITALIC + tail
     elif xml.tag == "foreign" and xml.get("lang") == "greek":
