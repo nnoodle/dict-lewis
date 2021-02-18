@@ -1,33 +1,22 @@
 #!/usr/bin/env python3
 
-import lxml.etree
-import json
 import os
 import sys
-import sqlite3
+import lxml.etree
+from datetime import datetime
 
 import beta_to_unicode
 
 XML_PATH = "lexica/CTS_XML_TEI/perseus/pdllex/lat/ls/lat.ls.perseus-eng1.xml"
 LAT_GRK = dict(zip("abgdez", "αβγδεζ"))
 
-if len(sys.argv) > 1 and sys.argv[1] == "--android":
-    DBNAME = "lewis-android.db"
-
-    BOLD = '<b>'
-    ITALIC = '<i>'
-    UNBOLD = "</b>"
-    UNITALIC = "</i>"
-    NL = "<br/>"
-    SPACE = '&nbsp;' * 2
-else:
-    DBNAME = "lewis.db"
-
-    BOLD = "\033[1m"
-    ITALIC = "\033[3m"
-    UNBOLD = UNITALIC = "\033[0m"
-    NL = '\n'
-    SPACE = '  '
+DBNAME = "lewis.txt"
+BOLD = '{'
+UNBOLD = '}'
+ITALIC = ''
+UNITALIC = ''
+NL = '\n'
+SPACE = '   '
 
 betacode_replacer = beta_to_unicode.Replacer()
 
@@ -60,15 +49,11 @@ def xml2str(xml, level=0):
     else:
         return contents + tail
 
-
-if os.path.exists(DBNAME):
-    os.remove(DBNAME)
-
-with sqlite3.connect(DBNAME) as conn:
-    c = conn.cursor()
-    c.execute("CREATE TABLE dictionary (_id INTEGER PRIMARY KEY, key TEXT, word TEXT, description TEXT)")
-
+with open(DBNAME, mode='w', encoding='utf-8') as file:
     print("Reading from " + XML_PATH)
+
+    file.write('Text provided under a CC BY-SA license by Perseus Digital Library, http://www.perseus.tufts.edu, with funding from The National Endowment for the Humanities.'+
+               f'Data accessed from https://github.com/PerseusDL/lexica/ [{datetime.now().isoformat()}].\n\n')
 
     context = lxml.etree.iterparse(XML_PATH, no_network=False, events=("end",), tag="entryFree")
     for i, (_, entry) in enumerate(context):
@@ -88,11 +73,8 @@ with sqlite3.connect(DBNAME) as conn:
         word = word.replace("^", "")
         value = value.replace("^", "")
 
-        c.execute("INSERT INTO dictionary (key, word, description) VALUES (?, ?, ?)", (key, word, value))
-        entry.clear() # Free memory
-    print()
-
-    print("Creating index")
-    c.execute("CREATE INDEX dictionary_key_idx ON dictionary (key)")
+        file.write(f':{key if key == word else key+"¦"+word}: {value}') # key+'\n'+word+'\n'+value+'\n'
+        entry.clear()
+        print()
 
 print("Finished generating " + DBNAME)

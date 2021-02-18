@@ -1,2 +1,6 @@
 *.db
 __pycache__
+*.dict
+*.dz
+*.index
+/lewis.txt
