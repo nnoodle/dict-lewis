@@ -52,7 +52,7 @@ def xml2str(xml, level=0):
 with open(DBNAME, mode='w', encoding='utf-8') as file:
     print("Reading from " + XML_PATH)
 
-    file.write('Text provided under a CC BY-SA license by Perseus Digital Library, http://www.perseus.tufts.edu, with funding from The National Endowment for the Humanities.'+
+    file.write('Text provided under a CC BY-SA license by Perseus Digital Library, http://www.perseus.tufts.edu, with funding from The National Endowment for the Humanities.\n'+
                f'Data accessed from https://github.com/PerseusDL/lexica/ [{datetime.now().isoformat()}].\n\n')
 
     context = lxml.etree.iterparse(XML_PATH, no_network=False, events=("end",), tag="entryFree")

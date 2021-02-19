@@ -12,7 +12,7 @@ lewis.txt: extract.py
 lewis.dict lewis.index: lewis.txt
 	dictfmt --utf8 --allchars -u $(URL) -s $(NAME) --columns 80 -j lewis --headword-separator '¦' < lewis.txt
 
-install: lewis.dict.dz
+install:
 	install -m 0755 -d "${PREFIX}/share/dictd"
 	install -m 0644 -t "${PREFIX}/share/dictd/" lewis.dict.dz lewis.index
 
