@@ -11,8 +11,8 @@ XML_PATH = "lexica/CTS_XML_TEI/perseus/pdllex/lat/ls/lat.ls.perseus-eng1.xml"
 LAT_GRK = dict(zip("abgdez", "αβγδεζ"))
 
 DBNAME = "lewis.txt"
-BOLD = '{'
-UNBOLD = '}'
+BOLD = ''
+UNBOLD = ''
 ITALIC = ''
 UNITALIC = ''
 NL = '\n'
@@ -60,7 +60,6 @@ with open(DBNAME, mode='w', encoding='utf-8') as file:
         print("\rProcessing entry ", i, sep='', end='')
 
         key = entry.get("key").lower().strip("0123456789")
-        key = key.replace('j', 'i').replace('v', 'u')
 
         assert entry[0].tag == "orth"
         word = entry[0].text.replace('-', '')
@@ -73,7 +72,7 @@ with open(DBNAME, mode='w', encoding='utf-8') as file:
         word = word.replace("^", "")
         value = value.replace("^", "")
 
-        file.write(f':{key if key == word else key+"¦"+word}: {value}') # key+'\n'+word+'\n'+value+'\n'
+        file.write(f':{key if key == word.lower() else key+"¦"+word}: {value}') # key+'\n'+word+'\n'+value+'\n'
         entry.clear()
         print()
 
